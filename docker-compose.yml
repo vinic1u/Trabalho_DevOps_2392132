@@ -24,6 +24,19 @@ services:
       MYSQL_USER: flask_user
       MYSQL_PASSWORD: flask_password
 
+  test:
+    build:
+      context: ./flask
+      dockerfile: Dockerfile_flask
+    command: ["pytest", "/app/test_app.py"]
+    depends_on:
+      - mariadb
+      - flask
+    environment:
+      - DATABASE_URL=mysql+pymysql://flask_user:flask_password@mariadb:3306/school_db
+    networks:
+      - default
+
   prometheus:
     image: prom/prometheus
     volumes:
