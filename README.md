@@ -121,9 +121,6 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
-#    volumes:
-#      - ./grafana/provisioning:/etc/grafana/provisioning
-#      - ./grafana/dashboards:/var/lib/grafana/dashboards
 ```
 ## Criar uma pasta nomeada flask e seguindo os seguintes procedimentos dentro dela
 ```
