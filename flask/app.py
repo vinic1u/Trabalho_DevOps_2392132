@@ -1,13 +1,15 @@
 # Código principal do Flask (app.py)
-import time
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_appbuilder import AppBuilder, SQLA
-from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_appbuilder import ModelView
-from sqlalchemy.exc import OperationalError
-from prometheus_flask_exporter import PrometheusMetrics
 import logging
+import time
+
+from flask_appbuilder import SQLA, AppBuilder, ModelView
+from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_sqlalchemy import SQLAlchemy
+from prometheus_flask_exporter import PrometheusMetrics
+from sqlalchemy import inspect
+from sqlalchemy.exc import OperationalError
+
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -42,7 +44,15 @@ attempts = 5
 for i in range(attempts):
     try:
         with app.app_context():
-            db.create_all()  # Inicializa o banco de dados
+            
+            # Inspecionar tabelas existentes
+            inspector = inspect(db.engine)
+            if 'aluno' not in inspector.get_table_names():
+                db.create_all()  # Cria tabelas apenas se elas não existirem
+                logger.info("Tabelas criadas com sucesso.")
+            else:
+                logger.info("Tabelas já existem. Nenhuma ação necessária.")
+
             # Criar um usuário administrador padrão
             if not appbuilder.sm.find_user(username='admin'):
                 appbuilder.sm.add_user(
